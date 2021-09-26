@@ -1,56 +1,63 @@
-import Arweave from 'arweave';
+import Arweave from "arweave";
 //import {useForm} from "react-hook-form";
-import React, { Component } from 'react';
-import './App.css';
+import React, { Component } from "react";
+import "./App.css";
 //import { CONNECTING } from 'ws';
 
 const arweave = Arweave.init({
-  host: 'arweave.net' 
+  host: "arweave.net",
 });
 
-arweave.wallets.getBalance('WLFm2hFVbkc_Cd3w3aHC2aRWxFuSzYsP00gCempykqU').then((balance) => {
-  let winston = balance;
-  let ar = arweave.ar.winstonToAr(balance);
-  console.log(winston);
-  console.log(ar);
-});
+arweave.wallets
+  .getBalance("WLFm2hFVbkc_Cd3w3aHC2aRWxFuSzYsP00gCempykqU")
+  .then((balance) => {
+    let winston = balance;
+    let ar = arweave.ar.winstonToAr(balance);
+    console.log(winston);
+    console.log(ar);
+  });
 
-async function submitLore(itemLore){
-
+async function submitLore(itemLore) {
   const permissions = ["ACCESS_ADDRESS", "SIGN_TRANSACTION", "SIGNATURE"];
-  await window.arweaveWallet.connect(permissions, {name: "ItemLore", logo: "https://magicitems.org/img/ghosty.gif"});
+  await window.arweaveWallet.connect(permissions, {
+    name: "ItemLore",
+    logo: "https://magicitems.org/img/ghosty.gif",
+  });
 
-let key = await arweave.wallets.generate();
+  let key = await arweave.wallets.generate();
 
-// Plain text
-let transactionA = await arweave.createTransaction({
-    data: Buffer.from(itemLore, 'utf8')
-}, key);
+  // Plain text
+  let transactionA = await arweave.createTransaction(
+    {
+      data: Buffer.from(itemLore, "utf8"),
+    },
+    key
+  );
 
-transactionA.addTag('Content-Type', 'text/html');
-transactionA.addTag('App-Name', 'ItemLore')
-transactionA.addTag('Item', 'TestItems');
-transactionA.addTag('Print-Number', '5/20');
+  transactionA.addTag("Content-Type", "text/html");
+  transactionA.addTag("App-Name", "ItemLore");
+  transactionA.addTag("Item", "TestItems");
+  transactionA.addTag("Print-Number", "5/20");
 
-/*
+  /*
 // Buffer
 let transactionB = await arweave.createTransaction({
     data: Buffer.from('Some data', 'utf8')
 }, key);
 */
 
-await arweave.transactions.sign(transactionA);
+  await arweave.transactions.sign(transactionA);
 
-let uploader = await arweave.transactions.getUploader(transactionA);
+  let uploader = await arweave.transactions.getUploader(transactionA);
 
+  while (!uploader.isComplete) {
+    await uploader.uploadChunk();
+    console.log(
+      `${uploader.pctComplete}% complete, ${uploader.uploadedChunks}/${uploader.totalChunks}`
+    );
+  }
 
-while (!uploader.isComplete) {
-  await uploader.uploadChunk();
-  console.log(`${uploader.pctComplete}% complete, ${uploader.uploadedChunks}/${uploader.totalChunks}`);
-}
-
-
-/*
+  /*
 function checkSubmit(){
   arweave.wallets.getLastTransactionID('WLFm2hFVbkc_Cd3w3aHC2aRWxFuSzYsP00gCempykqU').then((recentID) => {
   console.log(recentID); });
@@ -60,15 +67,13 @@ console.log(checkUpload);
 }
 }
 */
-
 }
-
 
 class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      value: '(Write your story here)'
+      value: "(Write your story here)",
     };
 
     this.handleChange = this.handleChange.bind(this);
@@ -76,14 +81,14 @@ class App extends Component {
   }
 
   handleChange(event) {
-    this.setState({value: event.target.value});
+    this.setState({ value: event.target.value });
   }
 
   handleSubmit(event) {
-    alert('Your story reads: ' + this.state.value);
+    alert("Your story reads: " + this.state.value);
     event.preventDefault();
     let itemLore = this.state.value;
-    console.log("state value test:" + itemLore)
+    console.log("state value test:" + itemLore);
     submitLore(itemLore);
     //checkSubmit();
   }
@@ -99,7 +104,6 @@ class App extends Component {
     );
   }
 }
-
 
 /*
 class App extends Component {
