@@ -1,16 +1,14 @@
-import Arweave from 'arweave';
-import React, { Component } from 'react';
+import Arweave from "arweave";
+import React, { Component } from "react";
 
 const arweave = Arweave.init({
-  host: 'arweave.net' 
+  host: "arweave.net",
 });
 
-
-export class Query extends Component{ 
-
-getLoreTransactions(){
+export class Query extends Component {
+  getLoreTransactions() {
     let query = {
-        query: `query {
+      query: `query {
         transactions(
         tags: [
             {
@@ -26,29 +24,25 @@ getLoreTransactions(){
         }
     }
 }`,
-};
+    };
 
-async function defineVars(){
+    async function defineVars() {
+      const requestOptions = {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify(query),
+      };
 
-const requestOptions = {
-    method: "POST",
-    headers: {
-        "content-type": "application/json",
-    },
-    body: JSON.stringify(query),
-}; 
+      const res1 = await fetch("https://arweave.net/graphql", requestOptions);
+      let json = await res1.clone().json();
+      return json;
+    }
 
-const res1 = await fetch("https://arweave.net/graphql", requestOptions);
-let json = await res1.clone().json();
-return json;
+    defineVars();
+  }
 }
-
-defineVars();
-
-}
-
-}
-
 
 /*class Query extends Component {
   constructor(props) {
@@ -87,7 +81,6 @@ defineVars();
 export default Query;
 
 */
-
 
 /*  //DMac's original ts code
 
