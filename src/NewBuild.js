@@ -1,9 +1,15 @@
-//import Arweave from "arweave";
+import Arweave from "arweave";
 import React, { useState }  from "react";
 //import ReactDOM from "react-dom";
 import "./App.css";
-import axios from "axios";
 
+const arweave = Arweave.init({
+    host: "arweave.net",
+  });
+
+//This is in the format that my gql search returns - this is how I tell the page what to display.
+//I've stripped it down to one item, in case that makes it easier to deal with.
+//Questions below:
 const oneReturn = {
     "data": {
       "transactions": {
@@ -21,30 +27,27 @@ const oneReturn = {
     }
   }
 
-  function reactOneShot(){
+  function arweaveOneShot(){ 
     const txs = oneReturn.data.transactions.edges;
     const tx = txs[0];
-    console.log("log txid: " + tx.node.id);
-      axios
-        .get("https://arweave.net/" + tx.node.id)
-        //What is "function" here? Is it just not named?
-        .then(function (response) {
-            const newText = response.data;
-            console.log("oneShot function: " + newText);
-            //My thought was that return would give me the actual value of response.data
-            //to add to the text being displayed as {text} below, but no dice. Why doesn't that work?
-            //When I console.log newText I get the text correctly displayed, but when I try to 
-            //
-            return newText;
-        })
-        .catch(function (error) {
-          console.log(error);
-        });
+    arweave.transactions.getData(tx.node.id, {decode: true, string: true}).then(data => {
+    console.log(data);
+    //This is where one big question lies - I know I'm fetching "data" correctly, but it doesn't 
+    //return in a way that lets me add that string to the useState hook.
+    return data;
+    });
   };
 
-  function logOneShot(){
-    console.log("log OneShot return: " + reactOneShot());
+  function returnOneShot(){
+    console.log("return OneShot: " + arweaveOneShot() );
   }
+
+//This is me trying out a few different pieces, ultimately atttempting to get something like
+//what you see in the "Add Lore Text" button - my thinking is that I'll return the contents of
+//the text in the json, then add it to the {text} value that's displayed at the top. 
+//
+//Question 1) In both the "Return One Shot" button and the "Add Lore Text" button I get undefined 
+//returned from the arweaveOneShot function. B) How can I get it to return the text I need?
 
   export function TextExample() {
     // Declare a new state variable, which we'll call "text"
@@ -53,26 +56,26 @@ const oneReturn = {
     return (
       <div>
         <p>{text}</p>
-        <button onClick={logOneShot}>Log One Shot</button>
+        <button onClick={arweaveOneShot}>Log One Shot</button>
+        <button onClick={returnOneShot}>Return One Shot</button>
         <button onClick={() => textCount(text + " add more text")}>Add Text</button>
-        <button onClick={() => textCount(text + reactOneShot() )}>Add Lore Text</button>
+        <button onClick={() => textCount(text + forOfThreeEntries() )}>Add Lore Text</button> 
         <br></br>
         <br></br>
-        <button onClick={logThreeEntries}>Log Three Entries</button>
+        <button onClick={forOfThreeEntries}>Log Three Arweave Entries</button>
       </div>
     ); 
   }
 
 
-  // The code below is closer to what I'm actually trying to finish. The gql returns a json
-  // with lots of tx ids of entries, and I want to display them one by one, with the "owner address" followed
-  // by the fetched html text for each entry. 
+  // The code below is closer to what I'm actually trying to finish. A gql search of arweave returns
+  // a json with lots of tx ids of entries, and I want to display them one by one, with the "owner
+  //  address" followed by the fetched html text for each entry. 
   //
   // I recognize this is trickier to display in React, because I'll need to use the useState hook
-  // sequentially, and add each entry to it one by one. What should I be looking out for in 
-  // dropping the useState hook into the the forEach loop below?
+  // sequentially, and add each entry to it one by one. More specific questions down below:
 
-// First, declare a static json that's identical to what gql returns:
+// This json is a lot like what the gql returns:
   const loreReturn = {
     "data": {
       "transactions": {
@@ -106,26 +109,26 @@ const oneReturn = {
     }
   }
 
-  function reactThreeEntries(){
+
+  function arweaveThreeEntries(){
     const txs = loreReturn.data.transactions.edges;
-    txs.forEach ((tx) => {
-      axios
-        .get("https://arweave.net/" + tx.node.id)
-        .then(function deliver(response) {
-          if (response.status === 200 && response != null) {
-            let newText = response.data;
-            console.log(newText);
-            return newText;
-          } else {
-            console.log("problem");
-          }
-        })
-        .catch(function (error) {
-          console.log(error);
-        });
+    txs.forEach ((tx) => {arweave.transactions.getData(tx.node.id, {decode: true, string: true}).then(data => {
+        console.log(data);
+        return data;
+    });
+  });
+};
+
+//I read the forEach always returns undefined, so I tried the same thing with a for of loop...
+//But still no dice! So my two questions here are:
+//1As above, how do I return the contents of each fetched "data" to add to useState hook?
+//and Question 2) How can I ALSO return the "owner" of each "data" - I'm confused on how to use this for
+//notation to get the loop to do two things together before moving onto the next item in the array.
+function forOfThreeEntries(){
+    const txs = loreReturn.data.transactions.edges;
+    for (const tx of txs){arweave.transactions.getData(tx.node.id, {decode: true, string: true}).then(data => {
+        console.log(data);
+        return data;
     });
   };
-
-  function logThreeEntries(){
-    console.log("log ThreeEntries return: " + reactThreeEntries());
-  }
+};
