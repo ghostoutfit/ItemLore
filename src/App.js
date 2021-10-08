@@ -3,6 +3,7 @@ import Arweave from "arweave";
 import React, { Component } from "react";
 import "./App.css";
 //import { CONNECTING } from 'ws';
+import { TextExample } from "./NewBuild";
 
 const arweave = Arweave.init({
   host: "arweave.net",
@@ -94,13 +95,16 @@ class App extends Component {
   }
   render() {
     return (
-      <form onSubmit={this.handleSubmit}>
-        <label>
-          Item:
-          <textarea value={this.state.value} onChange={this.handleChange} />
-        </label>
-        <input type="submit" value="Submit" />
-      </form>
+      <div>
+        <form onSubmit={this.handleSubmit}>
+          <label>
+            Item:
+            <textarea value={this.state.value} onChange={this.handleChange} />
+          </label>
+          <input type="submit" value="Submit" />
+        </form>
+        <TextExample/>
+      </div>
     );
   }
 }

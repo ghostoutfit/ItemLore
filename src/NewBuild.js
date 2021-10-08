@@ -30,16 +30,23 @@ const oneReturn = {
   function arweaveOneShot(){ 
     const txs = oneReturn.data.transactions.edges;
     const tx = txs[0];
+    console.log('2. arweaveOneShot is called');
     arweave.transactions.getData(tx.node.id, {decode: true, string: true}).then(data => {
-    console.log(data);
-    //This is where one big question lies - I know I'm fetching "data" correctly, but it doesn't 
-    //return in a way that lets me add that string to the useState hook.
-    return data;
+      console.log(`3. arweave.transations.getData().then callback is called, data = ${data}`);
+      //This is where one big question lies - I know I'm fetching "data" correctly, but it doesn't 
+      //return in a way that lets me add that string to the useState hook.
+      return data;
     });
   };
 
   function returnOneShot(){
     console.log("return OneShot: " + arweaveOneShot() );
+  }
+
+  function showJoeHowPromisesWork() {
+    console.log('1. showJoeHowPromisesWork is called');
+    const arweaveOneShotData = arweaveOneShot();
+    console.log(`4. after arweaveOneShot is called, arweaveOneShotData == ${arweaveOneShotData}`);
   }
 
 //This is me trying out a few different pieces, ultimately atttempting to get something like
@@ -56,6 +63,7 @@ const oneReturn = {
     return (
       <div>
         <p>{text}</p>
+        <button onClick={showJoeHowPromisesWork}>Show Joe How Promises Work</button>
         <button onClick={arweaveOneShot}>Log One Shot</button>
         <button onClick={returnOneShot}>Return One Shot</button>
         <button onClick={() => textCount(text + " add more text")}>Add Text</button>
