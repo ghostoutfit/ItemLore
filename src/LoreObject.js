@@ -33,9 +33,8 @@ const arweave = Arweave.init({
         ...lores,
         {
             id: lores.length + 1,
-            address: 'B',
-            print: 'J',
-            txid: 'is',
+            address: 'BJ',
+            print: 'is',
             txstory: 'cool'
         }
         ];
