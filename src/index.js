@@ -1,14 +1,14 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import "./index.css";
-import App from "./App";
-import Display from './ReactDisplay';
+//import { TextExample } from "./Another";
+import DisplayLoreObjects from "./LoreObject";
+//import App from './App';
 //import  {Query} from './Query';
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
-    <Display />
+    <DisplayLoreObjects/>
   </React.StrictMode>,
   document.getElementById("root")
 );
